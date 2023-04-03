@@ -64,6 +64,42 @@ models <- list(
 )
 # Print summaries of the models
 lapply(models, summary)
+# Evaluate models on test set
+test_results <- lapply(models, function(model) {
+  pred <- predict(model, gss_test_tbl)
+  rmse <- RMSE(pred, gss_test_tbl$HRS2)
+  r_squared <- R2(pred, gss_test_tbl$HRS2)
+  return(data.frame(Model = model$method, RMSE = rmse, R_Squared = r_squared))
+})
+# Combine test results into a data frame
+test_results_df <- do.call(rbind, test_results)
+# Display test results
+print(test_results_df)
 
 # Publication
+# Initialize vectors to store R-squared values
+cv_rsq <- numeric(length(models))
+ho_rsq <- numeric(length(models))
+# Calculate R-squared for 10-fold CV and holdout CV using a for loop
+for (i in seq_along(models)) {
+  model <- models[[i]]
+  if (inherits(model, "train")) {
+    cv_rsq[i] <- round(model$results$Rsquared[which(row.names(model$results) == row.names(model$bestTune))], 2)
+  } else {
+    cv_rsq[i] <- round(summary(model)$r.squared, 2)
+  }
+  preds <- predict(model, newdata = gss_test_tbl)
+  ho_rsq[i] <- round(1 - sum((preds - gss_test_tbl$HRS2)^2) / sum((mean(gss_test_tbl$HRS2) - gss_test_tbl$HRS2)^2), 2)
+}
+# Construct the table
+table1_tbl <- tibble(
+  algo = c("OLS", "Elastic Net", "Random Forest", "XGBoost"),
+  cv_rsq = sprintf("%.2f", cv_rsq),
+  ho_rsq = sprintf("%.2f", ho_rsq)
+)
+# Replace leading zeros with spaces
+table1_tbl$cv_rsq <- sub("^0", " ", table1_tbl$cv_rsq)
+table1_tbl$ho_rsq <- sub("^0", " ", table1_tbl$ho_rsq)
+# Display the table
+print(table1_tbl, row.names = FALSE, width = Inf)
 
