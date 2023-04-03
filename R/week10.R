@@ -103,3 +103,41 @@ table1_tbl$ho_rsq <- sub("^0", " ", table1_tbl$ho_rsq)
 # Display the table
 print(table1_tbl, row.names = FALSE, width = Inf)
 
+#How did your results change between models? Why do you think this happened, specifically?
+#The result changed between models due to the differences in their underlying 
+#algorithms and assumptions. OLS and Elastic Net are both linear models, 
+#but Elastic Net incorporates regularization, which helps to prevent overfitting 
+#and may lead to better performance. Thus, it is not surprised that Elastic Net 
+#has greater 10-fold CV R square than OLS. Random Forest and XGBoost are both 
+#tree-based ensemble methods, which can capture complex non-linear relationships 
+#between variables. Random Forest had the highest 10-fold CV R-squared, likely 
+#due to its ability to capture non-linear relationships and reduce overfitting 
+#through averaging multiple trees. However, the 10-fold CV R square of XGBoost 
+#is not greater than better than OLS, possibly because it was not able to fully 
+#leverage its boosting capabilities on this particular dataset.
+
+#How did you results change between k-fold CV and holdout CV? Why do you think this happened, specifically?
+#The result between 10-fold CV and holdout CV changed due to differences in the 
+#validation process. K-fold CV uses multiple folds and averages the performance 
+#across them, which helps to provide a more reliable estimate of the model's 
+#performance. Holdout CV evaluates the model on a single, separate dataset that 
+#the model has not seen before. It can sometimes give a less accurate performance 
+#estimate due to the randomness of the data split. In this case, we see a substantial 
+#decrease in the holdout CV R-squared values for OLS and Random Forest, suggesting 
+#that these models might be overfitting the training data, and their performance 
+#does not generalize well to new data.
+
+#Among the four models, which would you choose for a real-life prediction problem, and why? Are there tradeoffs?
+#Decision is really depending on the situation and specific problem. Based on 
+#the results, I would choose the Elastic Net model for a real-life prediction 
+#problem if my data is simple and only have linear relationship. The Elastic 
+#Net model has the highest holdout CV R-squared value, which indicates good 
+#generalization performance, and it also has a reasonable 10-fold CV R-squared 
+#value. The Elastic Net model benefits from the regularization, which helps to 
+#prevent overfitting, and it is a linear model, which is simpler and easier to 
+#interpret than tree-based ensemble models like Random Forest and XGBoost. 
+#However, if my data is complex and have non-linear relationships, then I may 
+#consider XGBoost since it also shows a relatively good performance in both 
+#10-fold CV and holdout CV. In addition, the Elastic Net model might not 
+#capture complex non-linear relationships as well as tree-based models, and its 
+#performance might be more sensitive to the choice of hyperparameters. 
